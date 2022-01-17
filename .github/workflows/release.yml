@@ -1,0 +1,38 @@
+# .github/workflows/release.yaml
+
+on: 
+  release:
+    types: [created]
+
+jobs:
+  releases-matrix:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '1.17.6' # The Go version to download (if necessary) and use.
+    
+    - run: mkdir ../goreleases
+    - name: Build binaries
+      
+      run: |
+        GOOS=linux GOARCH=386 go build -o ../goreleases/linux_i386
+        GOOS=linux GOARCH=amd64 go build -o ../goreleases/linux_amd64
+        GOOS=linux GOARCH=arm64 go build -o ../goreleases/linux_arm64
+        GOOS=windows GOARCH=386 go build -o ../goreleases/windows_i386.exe
+        GOOS=windows GOARCH=amd64 go build -o ../goreleases/windows_amd64.exe
+        GOOS=darwin GOARCH=amd64 go build -o ../goreleases/darwin_amd64
+      
+    - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        working-directory: ../goreleases
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./*
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+
