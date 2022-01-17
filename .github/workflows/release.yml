@@ -1,6 +1,8 @@
 # .github/workflows/release.yaml
+name: Release Binaries
 
-on: 
+on:
+  workflow_dispatch:
   release:
     types: [created]
 
@@ -9,7 +11,6 @@ jobs:
     name: Release Go Binary
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
     - uses: actions/checkout@v2
     - uses: actions/setup-go@v2
       with:
@@ -27,12 +28,11 @@ jobs:
         GOOS=darwin GOARCH=amd64 go build -o ../goreleases/darwin_amd64
       
     - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        working-directory: ../goreleases
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./*
-          tag: ${{ github.ref }}
-          overwrite: true
-          file_glob: true
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ../goreleases/*
+        tag: ${{ github.ref }}
+        file_glob: true
+
 
